@@ -1,2 +1,0 @@
-
--DCATKIN_DEVEL_PREFIX=/home/phathuynh/HBRS_Master/Semester_2/Software_Project/lucy_ws/devel -DCMAKE_INSTALL_PREFIX=/home/phathuynh/HBRS_Master/Semester_2/Software_Project/lucy_ws/install -G Unix Makefiles
