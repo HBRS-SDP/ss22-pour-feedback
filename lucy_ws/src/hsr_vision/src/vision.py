@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 
@@ -7,7 +9,6 @@ import numpy as np
 
 def nothing(x):
     pass
-
 
 # Create a window
 cv2.namedWindow('Track_bar')
