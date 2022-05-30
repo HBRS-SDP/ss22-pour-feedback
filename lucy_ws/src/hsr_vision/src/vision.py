@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
+import math
 from turtle import up
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 
 import rospy
 from sensor_msgs.msg import Image
-from std_msgs.msg import Float64
+from std_msgs.msg import Int32
 import numpy as np
 import imutils
 
@@ -35,8 +36,7 @@ cv2.setTrackbarPos('VMax', 'Track_bar', 235)
 
 
 def callback(data):
- 
- 	
+  
     # Used to convert between ROS and OpenCV images
     br = CvBridge()
 
@@ -69,18 +69,24 @@ def callback(data):
     # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     kernel = np.ones((5,5),np.uint8)
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
-    mask_focus = mask[129:372,259:387]  #focus on glass only with 2 pixels more in each direction
+    mask_focus = mask[75:375,235:390]  #focus on glass only with 2 pixels more in each direction
     
-    cv2.rectangle(current_frame,(260,130),(385,370),(0,0,255),2)    #bbox [(260,130),385,370)], height glass ~= 240
+    cv2.rectangle(current_frame,(240,80),(385,370),(0,0,255),2)    #bbox [(260,130),385,370)], height glass ~= 290
     
-    contours,_ = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    contour = contours[0]
-    # contours = imutils.grab_contours(contours)  
-    # cv2.drawContours(current_frame, contours, -1, (255, 0, 0), 2)
+    contours,_ = cv2.findContours(mask_focus.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    pub = rospy.Publisher("percent",Int32)
+    if len(contours)!=0:
+        contour = max(contours, key = cv2.contourArea)
 
-    x,y,w,h = cv2.boundingRect(contour)  
-    cv2.rectangle(current_frame,(x,y),(x+w,y+h),(0,255,0),2)
-    
+        x,y,w,h = cv2.boundingRect(contour)  
+        cv2.rectangle(current_frame,(x+235,y+75),(x+235+w,y+75+h),(0,255,0),2)
+        
+        percent = math.ceil(h/290*100)
+        pub.publish(percent)
+    else:
+        pub.publish(0)
+        
     cv2.imshow("camera", current_frame)
     cv2.imshow("HSV", result)
     cv2.imshow("Mask Glass Only", mask_focus)
@@ -97,7 +103,7 @@ def callback(data):
             f.writelines(str(upper))
     
     
-rospy.init_node('Baxter_Image')
+rospy.init_node('HSR_Vision')
 
 # Node is subscribing to the video_frames topic
 rospy.Subscriber('/hsrb/head_r_stereo_camera/image_raw', Image, callback)
