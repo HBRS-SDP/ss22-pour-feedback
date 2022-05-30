@@ -38,14 +38,31 @@ traj.joint_names = ["arm_lift_joint", "arm_flex_joint",
                     "arm_roll_joint", "wrist_flex_joint", "wrist_roll_joint"]
 print("I am line 36")
 p = trajectory_msgs.msg.JointTrajectoryPoint()
-p.positions = [0.2, -0.5, 0, 0, 0]
-p.velocities = [0, 0, 0, 0, 0]
-p.time_from_start = rospy.Duration(3)
-traj.points = [p]
-goal.trajectory = traj
 
-# send message to the action server
-cli.send_goal(goal)
-print("I am at line 46")
-# wait for the action server to complete the order
-cli.wait_for_result()
+# initial position values
+p.positions = [0.29,-0.42, 0.03,-1.07,0.02]
+p.velocities = [0, 0, 0, 0, 0]
+
+x = 0.02
+y = -5.0
+
+# code for constant +3 movement
+for _ in range(20):
+    p.positions = [0.29,-0.42, 0.03,-1.07,x]
+    p.velocities = [0, 0, 0, 0, 0]
+    p.time_from_start = rospy.Duration(3)
+    traj.points = [p]
+    goal.trajectory = traj
+
+    # send message to the action server
+    cli.send_goal(goal)
+    y = 3.0
+
+    x=x+0.2
+
+    # wait for the action server to complete the order
+    cli.wait_for_result()
+
+    if x > 3.5:
+        cli.cancel_all_goals()
+        break
