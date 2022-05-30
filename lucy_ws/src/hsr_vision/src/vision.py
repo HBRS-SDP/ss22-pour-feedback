@@ -11,6 +11,7 @@ from std_msgs.msg import Int32
 import numpy as np
 import imutils
 
+
 def nothing(x):
     pass
 
@@ -90,9 +91,6 @@ def callback(data):
     cv2.imshow("camera", current_frame)
     cv2.imshow("HSV", result)
     cv2.imshow("Mask Glass Only", mask_focus)
-    
-    # cv2.imshow("Test", mask[130:371,260:386])
-    # rospy.Publisher("std_msgs/Float64",Float64)
     
     wk = cv2.waitKey(1)
     if wk & 0xFF == ord('s'):
