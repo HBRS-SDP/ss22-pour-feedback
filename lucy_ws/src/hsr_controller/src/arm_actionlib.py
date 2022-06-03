@@ -6,7 +6,7 @@ import controller_manager_msgs.srv
 import rospy
 import trajectory_msgs.msg
 
-
+print("after import")
 rospy.init_node('test')
 
 # initialize action client
@@ -15,9 +15,12 @@ cli = actionlib.SimpleActionClient(
     control_msgs.msg.FollowJointTrajectoryAction)
 
 # wait for the action server to establish connection
-cli.wait_for_server()
+# TIMEOUT_SECS = 5
+# if not cli.wait_for_server(rospy.Duration(TIMEOUT_SECS)):
+#     rospy.logerr("timeout after {} seconds".format(TIMEOUT_SECS))
+#     exit(1)
 
-print("after server")
+rospy.loginfo("after server")
 
 # make sure the controller is running
 rospy.wait_for_service('/hsrb/controller_manager/list_controllers')
@@ -40,8 +43,8 @@ print("I am line 36")
 p = trajectory_msgs.msg.JointTrajectoryPoint()
 
 # initial position values
-p.positions = [0.29,-0.42, 0.03,-1.07,0.02]
-p.velocities = [0, 0, 0, 0, 0]
+# p.positions = [0.29,-0.42, 0.03,-1.07,0.02]
+# p.velocities = [0, 0, 0, 0, 0]
 
 x = 0.02
 y = -5.0
@@ -61,7 +64,7 @@ for _ in range(20):
     x=x+0.2
 
     # wait for the action server to complete the order
-    cli.wait_for_result()
+    # cli.wait_for_result()
 
     if x > 3.5:
         cli.cancel_all_goals()
