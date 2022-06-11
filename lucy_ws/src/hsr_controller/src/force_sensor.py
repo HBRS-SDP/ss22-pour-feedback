@@ -4,6 +4,7 @@
 """Speak Object Weight Sample"""
 
 import math
+from mimetypes import init
 import os
 import sys
 
@@ -172,7 +173,7 @@ def main():
                                   'wrist_roll_joint', 'head_pan_joint',
                                   'head_tilt_joint', 'hand_motor_joint'])
     initial_position.position.extend([0.0, 0.0, 0.0, -1.57,
-                                      0.0, 0.0, 0.0, 1.2])
+                                       0.0, 0.0, 0.0, 1.2])
     joint_controller.move_to_joint_positions(initial_position)
 
     # Get initial data of force sensor
