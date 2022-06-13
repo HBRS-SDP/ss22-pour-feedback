@@ -36,7 +36,6 @@ _CONNECTION_TIMEOUT = 10.0
 # Index 0: in Japanese, 1: in English
 
 _EXPLAIN4 = [U'jjdj',u' Please move away as I get to my initial position']
-                                                                                                                            1,1           Top
 _EXPLAIN3 = [u'jskjks',u'Hello this is team pouring']
 _EXPLAIN1 = [u'グリッパの間に重さをはかりたいものを持ってきてください',
              u'Please set the object between my gripper']
