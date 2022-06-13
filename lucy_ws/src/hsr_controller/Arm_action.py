@@ -6,8 +6,10 @@ import trajectory_msgs.msg
 from std_msgs.msg import Int32
 import sys
 
-
-x = 0.02
+global p
+global goal
+global traj
+global cli
 
 
 def callback(data):
