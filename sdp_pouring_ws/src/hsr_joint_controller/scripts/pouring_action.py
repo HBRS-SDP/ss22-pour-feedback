@@ -98,7 +98,7 @@ def vision_callback(data):
         goal.trajectory = traj
 
         # send message to the action server
-        cli.cancel_all_goals()
+        #cli.cancel_all_goals()
         cli.send_goal(goal)
         cli.wait_for_result()
 

@@ -116,8 +116,9 @@ def callback(data, target):
             f.writelines(str(upper))
     
     
-args = parse_args()
-target = args.target
+#args = parse_args()
+#target = args.target
+target = 100
 
 rospy.init_node('HSR_Vision')
 
