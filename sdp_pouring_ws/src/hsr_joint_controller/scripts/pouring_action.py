@@ -27,6 +27,7 @@ def force_callback(data):
     global goal
     global cli
     global old_weight
+    global finished
     
     # current iteration weight
     new_weight = int(data.data)
@@ -35,7 +36,7 @@ def force_callback(data):
     max_rate_of_change = 50
     
     # if the rate of change of weight is above a limit, ie. bulk pouring,
-    if (old_weight-new_weight) > max_rate_of_change:
+    if ((old_weight-new_weight) > max_rate_of_change) and (finished==False):
         # cancel all the current goal by vision callback
         cli.cancel_all_goals()
         # move back to an angle 3*step difference
@@ -65,6 +66,7 @@ def vision_callback(data):
     global cli
     global level
     global old_weight
+    global finished
 
     #rospy.loginfo('in callback')
     
@@ -86,6 +88,8 @@ def vision_callback(data):
 
     else:
         # when limit is reached, cancel all goals and go back to initial state.
+        finished = True
+        rospy.sleep(0.2)
         cli.cancel_all_goals()
         p.positions = [0.29,-0.42, 0.03,-1.07,0.02]
         p.velocities = [0, 0, 0, 0, 0]
@@ -94,6 +98,7 @@ def vision_callback(data):
         goal.trajectory = traj
 
         # send message to the action server
+        cli.cancel_all_goals()
         cli.send_goal(goal)
         cli.wait_for_result()
 
@@ -113,6 +118,9 @@ if __name__ == '__main__':
     step = 0.02
     # old_weight is used to store the previous iteration weight to calculate the rate of change of weight
     old_weight = 0
+
+    # Finish flag is used to stop the force callback
+    finished = False
 
 
     rospy.init_node('pour_controller')

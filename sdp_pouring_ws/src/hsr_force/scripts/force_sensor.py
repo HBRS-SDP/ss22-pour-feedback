@@ -252,6 +252,7 @@ def force_to_grams():
                                   'head_tilt_joint', 'hand_motor_joint'])
     initial_position.position.extend([0.29, -0.42, 0.03, -1.07,
                                       0.02, -0.10, -0.40, 0.60])
+    
     joint_controller.move_to_joint_positions(initial_position)
 
     # Get initial data of force sensor
