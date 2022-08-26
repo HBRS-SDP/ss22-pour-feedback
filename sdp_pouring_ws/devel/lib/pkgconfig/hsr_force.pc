@@ -1,0 +1,8 @@
+prefix=/home/sdp-pouring/sdp_pouring_ws/devel
+
+Name: hsr_force
+Description: Description of hsr_force
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
