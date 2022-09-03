@@ -84,7 +84,7 @@ class ForceSensorCapture(object):
         
         #compensation_node/biquad_lowpass_filter/55.0
         # Here we are using raw but we can use compensated instead
-        ft_sensor_topic = '/hsrb/wrist_wrench/raw'
+        ft_sensor_topic = '/hsrb/wrist_wrench/compensated'
         self._wrist_wrench_sub = rospy.Subscriber(
             ft_sensor_topic, WrenchStamped, self.__ft_sensor_cb)
         self.wrist_roll_sub=rospy.Subscriber('/hsrb/joint_states',JointState,self.__angle_cb)
@@ -292,7 +292,7 @@ def force_to_grams():
 
 
     weights = []
-    rospy.Rate(5)
+    rospy.Rate(10)
     while not rospy.is_shutdown():
 
 
@@ -309,9 +309,17 @@ def force_to_grams():
         # Convert newton to gram
         weight = round(force_difference / 9.81 * 1000, 1)
         weights.append(weight)
-        rospy.loginfo(weight)
-        pub.publish(weight)
-        rospy.sleep(0.1)
+
+        # Applying median filtering to weights with window size
+        x = 5
+        if len(weights)>5:
+            median = np.median(weights[:x])
+            rospy.loginfo(weight)
+            pub.publish(weight)
+            rospy.sleep(0.1)
+            x+=5
+        else:
+            continue
         #print(weight)
         #print(post_force_list) 
         

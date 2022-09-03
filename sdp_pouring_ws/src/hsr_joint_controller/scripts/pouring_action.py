@@ -107,7 +107,7 @@ class PouringAction(object):
 
     def vision_callback(self, vision_data):
         
-        if int(vision_data.data)<self.level:
+        if (int(vision_data.data)<self.level) and (self.angle<2.06):
             # in each iteration, move to the desired angle
             self.p.positions = [0.29,-0.42, 0.03,-1.07, self.angle]
             self.p.velocities = [0, 0, 0, 0, 0]
