@@ -84,7 +84,7 @@ class ForceSensorCapture(object):
         
         #compensation_node/biquad_lowpass_filter/55.0
         # Here we are using raw but we can use compensated instead
-        ft_sensor_topic = '/hsrb/wrist_wrench/compensated'
+        ft_sensor_topic = '/hsrb/wrist_wrench/raw'
         self._wrist_wrench_sub = rospy.Subscriber(
             ft_sensor_topic, WrenchStamped, self.__ft_sensor_cb)
         self.wrist_roll_sub=rospy.Subscriber('/hsrb/joint_states',JointState,self.__angle_cb)
