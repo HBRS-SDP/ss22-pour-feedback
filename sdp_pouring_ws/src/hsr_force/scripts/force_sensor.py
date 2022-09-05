@@ -129,7 +129,7 @@ class ForceSensorCapture(object):
 
         w = fc / (fs/2)
 
-        b,a = signal.butter(5,w,'low')
+        b,a = signal.butter(2,w,'low')
         # 5
         self._force_data_x = signal.lfilter(b, a, FX) #Forward filter
         self._force_data_y = signal.lfilter(b, a, FY)
@@ -227,6 +227,8 @@ class Speaker(object):
 
 
 def force_to_grams():
+    global weights
+
     pub = rospy.Publisher('grams',Float32, queue_size = 10)
     rate = rospy.Rate(5)
     rospy.init_node('hsrb_speak_object_weight')
@@ -308,24 +310,32 @@ def force_to_grams():
         force_difference = compute_difference(pre_force_list, post_force_list,pre_angle,post_angle)
         # Convert newton to gram
         weight = round(force_difference / 9.81 * 1000, 1)
-        weights.append(weight)
+        if len(weights)<5:
+            weights.append(weight)
+        else:
+            median=sorted(weights)
+            print(median[2])
+            pub.publish(median[2])
+            weights.pop(0)
+        rospy.sleep(0.1)
 
         # Applying median filtering to weights with window size
-        x = 5
-        if len(weights)>5:
-            median = np.median(weights[:x])
-            rospy.loginfo(weight)
-            pub.publish(weight)
-            rospy.sleep(0.1)
-            x+=5
-        else:
-            continue
-        #print(weight)
-        #print(post_force_list) 
+        #x = 5
+        #if len(weights)>5:
+        #    median = np.median(weights[:x])
+        #    rospy.loginfo(weight)
+        #    #pub.publish(weight)
+        #    pub.publish(median)
+        #    rospy.sleep(0.1)
+        #    x+=5
+        #else:
+        #    continue
+         
         
 
 if __name__ == '__main__':
     rospy.init_node('hsrb_speak_object_weight')
+    weights=[]
     force_to_grams()
     rospy.spin()
 

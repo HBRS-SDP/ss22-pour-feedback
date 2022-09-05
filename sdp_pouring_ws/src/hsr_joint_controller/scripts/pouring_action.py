@@ -29,7 +29,7 @@ class PouringAction(object):
         # angle variable stores the current roll angle
         self.angle = 0.02
         # step variable stores at which value, the angle increments in each iteration
-        self.step = 0.02
+        self.step = 0.015
         # old_weight is used to store the previous iteration weight to calculate the rate of change of weight
         self.old_weight = 0
         # Finish flag is used to stop the force callback
@@ -80,14 +80,14 @@ class PouringAction(object):
         new_weight = int(force_data.data)
         
         # max allowed limit of change is 50 grams per cycle
-        max_rate_of_change = 50
+        max_rate_of_change = 10
         
         # if the rate of change of weight is above a limit, ie. bulk pouring,
         if ((self.old_weight-new_weight) > max_rate_of_change) and (self.finished==False):
             # cancel all the current goal by vision callback
             self.cli.cancel_all_goals()
             # move back to an angle 3*step difference
-            self.p.positions = [0.29,-0.42, 0.03,-1.07,self.angle-(3*self.step)]
+            self.p.positions = [0.29,-0.42, 0.03,-1.07,self.angle-(10*self.step)]
             self.p.velocities = [0, 0, 0, 0, 0]
             self.p.time_from_start = rospy.Duration(1)
             self.traj.points = [self.p]
@@ -107,7 +107,7 @@ class PouringAction(object):
 
     def vision_callback(self, vision_data):
         
-        if (int(vision_data.data)<self.level) and (self.angle<2.06):
+        if (int(vision_data.data)<self.level) and (self.angle<2.3):
             # in each iteration, move to the desired angle
             self.p.positions = [0.29,-0.42, 0.03,-1.07, self.angle]
             self.p.velocities = [0, 0, 0, 0, 0]
