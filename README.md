@@ -13,7 +13,9 @@ Three packages:
 
 # Sequence to execute commands
 
+```
 <b>1. rosrun hsr_force force_sensor.py</b>
+```
 
 <b>Action performed:</b>
 
