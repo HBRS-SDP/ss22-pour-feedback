@@ -9,8 +9,7 @@ Three packages:
 3. hsr_joint_controller
 
 # ROS Architecture
-
-
+![ROS_architecture](images/ROS_architecture.png)
 
 # Sequence to execute commands
 
