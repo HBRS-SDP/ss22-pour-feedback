@@ -14,7 +14,7 @@ Three packages:
 # Sequence to execute commands
 
 ```
-<b>1. rosrun hsr_force force_sensor.py</b>
+rosrun hsr_force force_sensor.py
 ```
 
 <b>Action performed:</b>
@@ -25,14 +25,18 @@ b. Lucy will ask to place the object between the gripper.
 
 c. Weight of the grasped object would be announced as well as published (topic: \grams).
 
-<b>2. rosrun hsr_vision bounding_box.py</b>
+```
+rosrun hsr_vision edge_detection.py
+```
 
 This will pop up the window of the current image. Draw bounding box around the cup by dragging the mouse around the cup. Press “r” to redraw the bounding box. Press “c” to confirm the bounding box and start publishing percentage.
 
 <b>Action performed:</b>
 
 
-<b>3. rosrun hsr_vision colour_detection.py</b>
+```
+rosrun hsr_vision colour_detection.py
+```
 
 Following pop up windows appear:
 
@@ -46,7 +50,9 @@ c. Mask would be displayed when lucy starts pouring liquid/cereal
 
 a. Current liquid/cereal level in the cup is published (topic: \percent)
 
-<b>4. rosrun hsr_joint_controller pouring_action.py --target prefered_liquid_level</b>
+```
+rosrun hsr_joint_controller pouring_action.py --target user_input_level
+```
 
 This code controls the motion of wrist for pouring as well as desired level of liquid required in the cup. 
 
