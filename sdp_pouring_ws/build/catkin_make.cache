@@ -1,2 +1,2 @@
 hsr_force:hsr_joint_controller:hsr_vision
--DCATKIN_DEVEL_PREFIX=/home/sdp-pouring/sdp_pouring_ws/devel -DCMAKE_INSTALL_PREFIX=/home/sdp-pouring/sdp_pouring_ws/install -G Unix Makefiles
+-DPYTHON_EXECUTABLE=/usr/bin/python3 -DCATKIN_DEVEL_PREFIX=/home/phathuynh/HBRS_Master/Semester_2/Software_Project/sdp_pouring_ws/devel -DCMAKE_INSTALL_PREFIX=/home/phathuynh/HBRS_Master/Semester_2/Software_Project/sdp_pouring_ws/install -G Unix Makefiles

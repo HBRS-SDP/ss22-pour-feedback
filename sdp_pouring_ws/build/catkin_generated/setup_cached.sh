@@ -7,9 +7,7 @@
 # new environment variables
 
 # modified environment variables
-export CMAKE_PREFIX_PATH="/home/sdp-pouring/sdp_pouring_ws/devel:$CMAKE_PREFIX_PATH"
-export LD_LIBRARY_PATH="/home/sdp-pouring/sdp_pouring_ws/devel/lib:$LD_LIBRARY_PATH"
-export PKG_CONFIG_PATH="/home/sdp-pouring/sdp_pouring_ws/devel/lib/pkgconfig:$PKG_CONFIG_PATH"
-export PWD='/home/sdp-pouring/sdp_pouring_ws/build'
-export ROSLISP_PACKAGE_DIRECTORIES="/home/sdp-pouring/sdp_pouring_ws/devel/share/common-lisp:$ROSLISP_PACKAGE_DIRECTORIES"
-export ROS_PACKAGE_PATH="/home/sdp-pouring/sdp_pouring_ws/src:$ROS_PACKAGE_PATH"
+export CMAKE_PREFIX_PATH="/home/phathuynh/HBRS_Master/Semester_2/Software_Project/sdp_pouring_ws/devel:$CMAKE_PREFIX_PATH"
+export PWD='/home/phathuynh/HBRS_Master/Semester_2/Software_Project/sdp_pouring_ws/build'
+export ROSLISP_PACKAGE_DIRECTORIES='/home/phathuynh/HBRS_Master/Semester_2/Software_Project/sdp_pouring_ws/devel/share/common-lisp'
+export ROS_PACKAGE_PATH="/home/phathuynh/HBRS_Master/Semester_2/Software_Project/sdp_pouring_ws/src:$ROS_PACKAGE_PATH"

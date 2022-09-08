@@ -1,8 +1,0 @@
-prefix=/home/sdp-pouring/sdp_pouring_ws/devel
-
-Name: hsr_joint_controller
-Description: Description of hsr_joint_controller
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
