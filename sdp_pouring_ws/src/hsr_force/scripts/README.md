@@ -13,7 +13,7 @@
 4. The rotation of the wrist takes place about the Z axis and hence transformation should be applied to all components with respect to that. 
 5. The root of the squared difference is calculated between the previous iteration and new iteration of X,Y and Z components and then passed on as one value of force which is used for weight calculation. 
 6. The weight is calculated in grams. 
-7. The topic '/grams' is published at a rate of 10Hz. A faster rate can slow down the conttroller as there would not be much difference between each published value and would increase the number of iterations. 
+7. The topic '/grams' is published at a rate of 10Hz. A faster rate can slow down the controller as there would not be much difference between each published value and would increase the number of iterations. 
 
 # USAGE OF FILTERS
 1. As the data is noisy, filtering of data is required before and after the calculation of weights. 
