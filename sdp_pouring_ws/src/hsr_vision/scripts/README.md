@@ -1,8 +1,14 @@
-# COLOUR DETECTION
-1. localize the position of the glass in the image by using the track bar 
-2. Detect the pouring cereal by colour decided by HSV values 
-3. Ratio between the region on cereal and bounding box.
-4. There is an angle between the camera and glass so the caclulation of percentage has a tolerance of about 5% based on experiments. Eg: if we want to pour 50% the result can be between 45 to 55. 
+# COLOR DETECTION
+1. Localize the position of the blue bounding box for the glass in the image by using the track bar consisting  of:
+  - Width 
+  - Height
+  - Delta X: for moving the bounding box in X direction
+  - Delta Y: for moving the bounding box in Y direction
+2. The liquid or cereal poured is detected by the colour. This detection of colors depends on the range of HSV values. 
+3. These HSV values can also be adjusted using the trackbar to include a specific color or range of colors. 
+4. The percentage of filled glass is calculated by the ratio between the region of cereal to region of bounding box.
+5. There is an angle between the camera and glass so the caclulation of percentage has a tolerance of about 5% based on experiments. Eg: if we want to pour 50% the result can be between 45 to 55. 
+6. Once the percentage has been calculated, it is published as topic 'percent' for the controller. 
 
 # Edge Detection
 
