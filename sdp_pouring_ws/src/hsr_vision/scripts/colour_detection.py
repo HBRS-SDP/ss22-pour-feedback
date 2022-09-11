@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from inspect import getclasstree
 import math
 from turtle import up
 import cv2
@@ -15,8 +16,9 @@ import argparse
 def nothing(x):
     pass
 
-# Create a window
+# Create windows
 cv2.namedWindow('Track_bar')
+cv2.namedWindow("Glass size")
 
 # Create trackbars for color change
 # Hue is from 0-179 for Opencv
@@ -34,6 +36,19 @@ cv2.setTrackbarPos('VMin', 'Track_bar', 43)
 cv2.setTrackbarPos('HMax', 'Track_bar', 41)
 cv2.setTrackbarPos('SMax', 'Track_bar', 241)
 cv2.setTrackbarPos('VMax', 'Track_bar', 235)
+
+# Set track bar for size of glass 
+cv2.createTrackbar('Height', 'Glass size', 0, 370, nothing)
+cv2.createTrackbar('Width', 'Glass size', 0, 400, nothing)
+
+cv2.createTrackbar('Delta X', 'Glass size', -100, 100, nothing)
+cv2.createTrackbar('Delta Y', 'Glass size', -50, 50, nothing)
+
+cv2.setTrackbarPos('Height', 'Glass size', 100)
+cv2.setTrackbarPos('Width', 'Glass size', 50)
+
+cv2.setTrackbarPos('Delta X', 'Glass size', 0)
+cv2.setTrackbarPos('Delta Y', 'Glass size', 0)
 
 
 def parse_args():
@@ -64,7 +79,16 @@ def callback(data, target):
     lower = np.array([hMin, sMin, vMin])
     upper = np.array([hMax, sMax, vMax])
     
+    # Set size of glass
+    h_glass = cv2.getTrackbarPos('Height', 'Glass size')
+    w_glass = cv2.getTrackbarPos('Width', 'Glass size')
 	
+    # Center point shift
+    dx = cv2.getTrackbarPos('Delta X', 'Glass size')
+    dy = cv2.getTrackbarPos('Delta Y', 'Glass size')
+    center_x = 200+dx
+    center_y = 370-dy
+    
     # Convert ROS Image message to OpenCV image
     ori_frame = cv2.cvtColor(br.imgmsg_to_cv2(data), cv2.COLOR_RGB2BGR)
     current_frame = ori_frame[300:1000,300:1000]
@@ -84,11 +108,14 @@ def callback(data, target):
     
     # focus on glass only with 2 pixels more in each direction #CHANGE HERE
     # mask_focus = mask[68:362,178:315]  # full glass
-    interest = int(290*percent_target/100)
-    mask_focus = mask[362-interest:362,178:315]
+    interest = int(h_glass*percent_target/100)
+    mask_x_left = center_x-int(w_glass)//2
+    mask_x_right = center_x+int(w_glass)//2
+    mask_focus = mask[center_y-interest-10:center_y+10,mask_x_left:mask_x_right]
     
-    cv2.rectangle(current_frame,(180,70),(320,360),(0,0,255),2)   #bbox [(180,70),(320,360)], height glass ~= 290
-    
+    # cv2.rectangle(current_frame,(180,60),(320,370),(0,0,  255),2)   #bbox [(180,70),(320,360)], height glass ~= 290 
+    cv2.circle(current_frame, (center_x,center_y), 5, (255,0,0), -1)
+    cv2.rectangle(current_frame,(mask_x_left, center_y-int(h_glass)), (mask_x_right,center_y), (255,0,0),2)
     contours,_ = cv2.findContours(mask_focus.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
     pub = rospy.Publisher("percent",Int32,queue_size=1)
@@ -96,16 +123,18 @@ def callback(data, target):
         contour = max(contours, key = cv2.contourArea)
 
         x,y,w,h = cv2.boundingRect(contour)  
-        cv2.rectangle(current_frame,(x+175,y+(362-interest)),(x+175+w,y+(362-interest)+h),(0,255,0),2)
+        #cv2.rectangle(current_frame,(x+mask_x_left,y+(center_y-interest)),(x+mask_x_left+w,y+(center_y-interest)+h),(0,255,0),2)
+        cv2.rectangle(current_frame,(x+mask_x_left,y+(center_y-interest)),(x+mask_x_left+w,center_y),(0,255,0),2)
         
-        percent = int(math.ceil(h/(290+50)*100))
-        pub.publish(percent)
+        percent = h/h_glass*100
+              
+        pub.publish(int(percent))
     else:
         pub.publish(0)
         
     cv2.imshow("camera", current_frame)
     cv2.imshow("HSV", result)
-    cv2.imshow("Mask Glass Only", mask_focus)
+    #cv2.imshow("Mask Glass Only", mask_focus)
     
     wk = cv2.waitKey(1)
     if wk & 0xFF == ord('s'):
