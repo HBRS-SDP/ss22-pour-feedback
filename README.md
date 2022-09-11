@@ -28,13 +28,13 @@ This repository has one workspace namely, sdp_pouring_ws. It consists of further
 
 Following sequence of commands to execute
 
-<b>1.  </b>
+<b>1. Sourcing the workspace  </b>
 
 ```
 source sdp_pouring_ws/devel/setup.bash
 ```
 
-<b>2.) Feedback from force Sensor</b>
+<b>2. Feedback from force sensor</b>
 
 Run the force_sensor.py file to obtain the current weight in the grasped container. 
 
@@ -50,9 +50,11 @@ b. Lucy will ask to place the container between the gripper. Grasp at a position
 
 c. Weight of the grasped object would be announced as well as published (topic: \grams).
 
-<b>3 Feedback from vision sensor</b>
+<b>3. Feedback from vision sensor</b>
 
-<b>a.) Colour independent</b>
+For this project HSR head right stereo camera is used. 
+
+<b> 3.1 Colour independent</b>
 
 Run the edge detection file, if edge based detection algorithm (colour-independent) is to be performed)
 
@@ -82,7 +84,7 @@ d. A relative representation of the content within the glass.
 
 a. Current liquid/cereal level in the cup is published (topic: \percent).
 
-<b>b.) Colour dependent </b>
+<b>3.2 Colour dependent </b>
 
 Run the colour detection file, if colour-mask based detection algorithm is to be performed. 
 
@@ -111,7 +113,7 @@ d. Mask would be displayed when lucy starts pouring liquid/cereal.
 
 a. Current liquid/cereal level in the cup is published (topic: \percent).
 
-<b>4.) Controlling pouring action based on the feedback received from different sensors.</b>
+<b>4. Controlling pouring action based on the feedback received from different sensors.</b>
 
 Run the pouring_action.py file along with the target level
 
