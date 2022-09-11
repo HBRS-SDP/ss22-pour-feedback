@@ -26,6 +26,9 @@ This repository has one workspace namely, sdp_pouring_ws. It consists of further
 2. hsr_force
 3. hsr_joint_controller
 
+[NOTE] The code is to be executed from within Lucy after login using SSH.
+```ssh -X sdp-pouring@192.168.50.201```
+
 Following sequence of commands to execute
 
 <b>1. Sourcing the workspace  </b>
