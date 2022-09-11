@@ -20,19 +20,18 @@ def parse_args():
   return args
   
 
-# remove object if it has some problem
 class PouringAction(object):
 
     def __init__(self, level):
         # saves the target level
         self.level = level
-        # angle variable stores the current roll angle
+        # angle variable stores the current roll angle. Initially its 0.02.
         self.angle = 0.02
-        # step variable stores at which value, the angle increments in each iteration
-        self.step = 0.015
-        # old_weight is used to store the previous iteration weight to calculate the rate of change of weight
+        # step variable stores at which value the angle should be incremented in each iteration.
+        self.step = 0.02
+        # old_weight is used to store the previous iteration weight to calculate the rate of change of weight.
         self.old_weight = 0
-        # Finish flag is used to stop the force callback
+        # Finish flag is used to stop the force callback by indicating that the target level is achieved.
         self.finished = False
 
         rospy.init_node('pour_controller')
@@ -67,8 +66,8 @@ class PouringAction(object):
                             "arm_roll_joint", "wrist_flex_joint", "wrist_roll_joint"]
         self.p = trajectory_msgs.msg.JointTrajectoryPoint()
         
-        # two subscribers are needed. One for vision level and weight.
-        # since force feedback is faster, it can be used to update the global weight variable in the callback
+        # two subscribers are needed. One for vision and one for weight.
+        # since force feedback is faster, it can be used to update the global weight variable in the callback.
         # vision feedback is slower and hence can be used as a limit checker for the arm turning
         # in the callback for force, when a condition happens, it can be used to turn back the arm by a bigger rad angle.
         rospy.Subscriber('/percent', Int32, self.vision_callback, queue_size=1)
@@ -79,14 +78,14 @@ class PouringAction(object):
         # current iteration weight
         new_weight = int(force_data.data)
         
-        # max allowed limit of change is 50 grams per cycle
+        # max allowed limit of change is 10 grams per cycle
         max_rate_of_change = 10
         
-        # if the rate of change of weight is above a limit, ie. bulk pouring,
+        # if the rate of change of weight is above a limit, ie. bulk pouring, and the level is not reached,
         if ((self.old_weight-new_weight) > max_rate_of_change) and (self.finished==False):
             # cancel all the current goal by vision callback
             self.cli.cancel_all_goals()
-            # move back to an angle 3*step difference
+            # move back to an angle 10*current step size
             self.p.positions = [0.29,-0.42, 0.03,-1.07,self.angle-(10*self.step)]
             self.p.velocities = [0, 0, 0, 0, 0]
             self.p.time_from_start = rospy.Duration(1)
@@ -151,4 +150,3 @@ if __name__ == '__main__':
     level = int(args.target)
 
     PouringAction(level)
-
