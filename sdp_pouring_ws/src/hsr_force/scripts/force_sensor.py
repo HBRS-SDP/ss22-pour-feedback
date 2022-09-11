@@ -20,7 +20,6 @@ import geometry_msgs.msg
 from  tf.transformations import euler_from_quaternion
 from geometry_msgs.msg import Quaternion
 
-#from geometry_msgs.msg import compensated 
 import rospy
 from sensor_msgs.msg import JointState
 from tmc_control_msgs.msg import (
@@ -55,9 +54,11 @@ _ANSWER = [u'これは{0}グラムです', u'This is {0} gram']
 def compute_difference(pre_data_list, post_data_list,initial,post):
     if (len(pre_data_list) != len(post_data_list)):
         raise ValueError('Argument lists differ in length')
-    # Calcurate square sum of difference
-
+   
+    
     angle=np.degrees(initial)
+    
+    # Applying transformation based on rotation about Z axis
     x_new=post_data_list[0]*math.cos(angle)-post_data_list[1]*math.sin(angle)
     y_new=post_data_list[0]*math.sin(angle)+post_data_list[1]*math.cos(angle)
     z_new=post_data_list[2]
@@ -66,6 +67,7 @@ def compute_difference(pre_data_list, post_data_list,initial,post):
     y_old=pre_data_list[1]
     z_old=pre_data_list[2]
 
+    # Calcurate square sum of difference
     result=math.sqrt(math.pow(x_old-x_new,2)+math.pow(y_old-y_new,2)+math.pow(z_old - z_new,2))
     return result
 
@@ -76,14 +78,11 @@ class ForceSensorCapture(object):
         self._force_data_x = 0.0
         self._force_data_y = 0.0
         self._force_data_z = 0.0
-        self.wrist_roll_initial_pos=0.0#rospy.Subscriber('/hsrb/joint_states/position[-1]',Float32)
+        self.wrist_roll_initial_pos=0.0
         self.wrist_roll_post_pos=0.0
         # Subscribe force torque sensor data from HSRB
-
-        #ft_sensor_topic = '/hsrb/wrist_wrench/raw'
         
-        #compensation_node/biquad_lowpass_filter/55.0
-        # Here we are using raw but we can use compensated instead
+        # Here we are using compensated data
         ft_sensor_topic = '/hsrb/wrist_wrench/compensated'
         self._wrist_wrench_sub = rospy.Subscriber(
             ft_sensor_topic, WrenchStamped, self.__ft_sensor_cb)
@@ -108,10 +107,11 @@ class ForceSensorCapture(object):
         return self.wrist_roll_angle
 
     def __ft_sensor_cb(self, data):
+        
+        # Getting force as three components
         self._force_data_x = data.wrench.force.x
         self._force_data_y = data.wrench.force.y
         self._force_data_z = data.wrench.force.z
-        #self.wrist_roll_post_pos=rospy.Subscriber('/hsrb/joint_states/position[-1]',Float32)
         
         # Applying low pass filter for force values
 
@@ -123,21 +123,22 @@ class ForceSensorCapture(object):
         FY.append(self._force_data_y)
         FZ.append(self._force_data_z)
 
+        # Sampling frequency
         fs = 124.95 
+        
+        # Cut-off frequency
         fc = 55
-        # 55
 
         w = fc / (fs/2)
 
+        # Using function for lowpass butterworth filter
         b,a = signal.butter(2,w,'low')
-        # 5
+        
         self._force_data_x = signal.lfilter(b, a, FX) #Forward filter
         self._force_data_y = signal.lfilter(b, a, FY)
         self._force_data_z = signal.lfilter(b, a, FZ)
 
-        # Reference: https://answers.ros.org/question/312833/how-do-i-implement-a-low-pass-filter-to-reduce-the-noise-coming-from-a-topic-that-is-publishing-a-wrenchstamped-msg-type-using-a-python-script/
-
-
+        # Reference for lowpass filter: https://answers.ros.org/question/312833/how-do-i-implement-a-low-pass-filter-to-reduce-the-noise-coming-from-a-topic-that-is-publishing-a-wrenchstamped-msg-type-using-a-python-script/
 
 
 class JointController(object):
@@ -275,12 +276,13 @@ def force_to_grams():
 
     # Wait until force sensor data become stable
     rospy.sleep(1.0)
+    
+    # Getting current force
     post_force_list = force_sensor_capture.get_current_force()
 
     post_angle=force_sensor_capture.get_current_angle()
 
-    #initial_position_angle=force_sensor_capture.wrist_roll_post_pos
-    #post_position_angle=force_sensor_capture.wrist_roll_initial_pos
+
 
     force_difference = compute_difference(pre_force_list, post_force_list,pre_angle,post_angle)
 
@@ -300,16 +302,18 @@ def force_to_grams():
 
         # Getting new force sensor reading
         post_force_list = force_sensor_capture.get_current_force()
-
+        
+        # Getting current angle
         post_angle=force_sensor_capture.get_current_angle()
 
 
         # Computing difference from initial and new force sensor readings
-        #initial_position_angle=force_sensor_capture.wrist_roll_post_pos
-        #post_position_angle=force_sensor_capture.wrist_roll_initial_pos
+
         force_difference = compute_difference(pre_force_list, post_force_list,pre_angle,post_angle)
         # Convert newton to gram
         weight = round(force_difference / 9.81 * 1000, 1)
+        
+        # Applying median filter with window size 5 
         if len(weights)<5:
             weights.append(weight)
         else:
@@ -319,19 +323,6 @@ def force_to_grams():
             weights.pop(0)
         rospy.sleep(0.1)
 
-        # Applying median filtering to weights with window size
-        #x = 5
-        #if len(weights)>5:
-        #    median = np.median(weights[:x])
-        #    rospy.loginfo(weight)
-        #    #pub.publish(weight)
-        #    pub.publish(median)
-        #    rospy.sleep(0.1)
-        #    x+=5
-        #else:
-        #    continue
-         
-        
 
 if __name__ == '__main__':
     rospy.init_node('hsrb_speak_object_weight')
