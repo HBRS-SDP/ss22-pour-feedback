@@ -165,7 +165,7 @@ class PourDetection(object):
             block_img[lines[idx]:] = 255
             level = int(((height - lines[idx]+1)/height)*100)
         else:
-            level = 0
+            level = self.prev_level
 
         #if level < self.prev_level:
         #    level = self.prev_level
