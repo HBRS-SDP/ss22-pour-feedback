@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright (C) 2016 Toyota Motor Corporation
-
+"""Flesh Color Detection Sample"""
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 
@@ -8,12 +8,15 @@ import rospy
 from sensor_msgs.msg import Image
 from std_msgs.msg import Int32
 import numpy as np
+import time
 
 
 
 class PourDetection(object):
 
     def __init__(self):
+        # RGBD camera
+        # topic_name = '/hsrb/head_rgbd_sensor/rgb/image_rect_color'
         # Stereo right camera
         topic_name = '/hsrb/head_r_stereo_camera/image_raw'
         self._bridge = CvBridge()
@@ -21,7 +24,7 @@ class PourDetection(object):
         self._input_image = None
         # use to store the initial reference frame for background subtraction
         self.reference_frame = None
-        self.prev_level = 0
+        # self.prev_level = 0.0
         # used to make notify whether the initial reference frame is saved.
         self.ref_flag = False
         # used to store the bounding box points selected by user
@@ -66,6 +69,7 @@ class PourDetection(object):
                         # draw a rectangle using the mouse down and up points
                         cv2.rectangle(new_image, self.points[0], self.points[1], (255, 0, 0), 2)
                         prev_point = self.points[1]
+               #time.sleep(0.01)
 
             cv2.imshow("Bounding box Selector", new_image)
             key = cv2.waitKey(1) & 0xFF
@@ -76,6 +80,7 @@ class PourDetection(object):
             # confirm the bounding box
             elif key == ord("c"):
                 break
+            #time.sleep(0.01)
         cv2.destroyWindow("Bounding box Selector")
         # to indicate that the bounding box has been successfully generated.
         self.initialization = True
@@ -86,7 +91,7 @@ class PourDetection(object):
             self._input_image = self._bridge.imgmsg_to_cv2(data, "bgr8")
             # adjust the cordinates as per the initilializer visualizations step
             # only after completing initialization
-            if self.initialization==True and (self.points[0]!=self.points[1]):
+            if self.initialization==True:
                 self._input_image = self._input_image[self.points[0][1]:self.points[1][1],self.points[0][0]:self.points[1][0]]
 
         except CvBridgeError as cv_bridge_exception:
@@ -98,15 +103,18 @@ class PourDetection(object):
         gray_blurred = cv2.GaussianBlur(gray,(7,7),cv2.BORDER_DEFAULT)
 
         ksize = 3
-        # change dy to 2 also
+        #gX = cv2.Sobel(gray_blurred, ddepth=cv2.CV_32F, dx=1, dy=0, ksize=ksize)
         gY = cv2.Sobel(gray_blurred, ddepth=cv2.CV_32F, dx=0, dy=1, ksize=ksize)
         if self.ref_flag == False:
             self.reference_frame = np.copy(gY)
             self.ref_flag = True
 
         gY_new = gY - self.reference_frame
+        #gX = cv2.convertScaleAbs(gX)
         gY_new = cv2.convertScaleAbs(gY_new)
         gY = cv2.convertScaleAbs(gY)
+
+        #combined = cv2.addWeighted(gX, 0.5, gY, 0.5, 0)
         
         # combined can be used if necessary
         
@@ -116,14 +124,9 @@ class PourDetection(object):
         # apply thresholding to 0 and 255
         thrshld_img = np.copy(blurred_img)
 
-        # threshold level is set to 20 to remove the noise
+        # threshold level is set to 10 to remove the noise
         threshold = 20
         thrshld_img = np.where(thrshld_img > threshold, 255, 0)
-
-        if self.ref_flag == False:
-            self.reference_pixels = np.where(thrshld_img == 255)
-            self.ref_flag = True
-
         thrshld_img = thrshld_img.astype('uint8')
 
         # scailing down the image for easier computation
@@ -161,8 +164,10 @@ class PourDetection(object):
             block_img[lines[idx]:] = 255
             level = int(((height - lines[idx]+1)/height)*100)
         else:
-            level = self.prev_level
+            level = 0
 
+        #if level < self.prev_level:
+        #    level = self.prev_level
 
         print("level is", level)
 
@@ -179,11 +184,10 @@ def main():
     rospy.init_node('hsrb_pouring_level_detection')
     try:
         pouring_detection = PourDetection()
-        spin_rate = rospy.Rate(10)
-        rospy.sleep(0.5)
+        spin_rate = rospy.Rate(20)
+        time.sleep(0.5)
         
         # UpdateGUI Window
-        # check this self.points[0]!=self.points[1] here also maybe. call extract level only when self._image is of smaller size
         while (not rospy.is_shutdown()) and (pouring_detection.initialization==True):
             spin_rate.sleep()
             img, gY, thrshld_img, blk_img = pouring_detection.extract_level()
