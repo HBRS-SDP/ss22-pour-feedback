@@ -92,7 +92,7 @@ class PourDetection(object):
             # adjust the cordinates as per the initilializer visualizations step
             # only after completing initialization
             if self.initialization==True:
-                self._input_image = self._input_image[self.points[0][1]:self.points[1][1],self.points[0][0]:self.points[1][0]]
+                self._input_image = self._input_image[min(self.points[0][1],self.points[1][1]):max(self.points[0][1],self.points[1][1]),min(self.points[0][0],self.points[1][0]):max(self.points[0][0],self.points[1][0])]
 
         except CvBridgeError as cv_bridge_exception:
             rospy.logerr(cv_bridge_exception)

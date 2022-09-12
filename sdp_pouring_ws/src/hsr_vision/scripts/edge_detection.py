@@ -87,14 +87,17 @@ class PourDetection(object):
             # adjust the cordinates as per the initilializer visualizations step
             # only after completing initialization
             if self.initialization==True and (self.points[0]!=self.points[1]):
-                self._input_image = self._input_image[self.points[0][1]:self.points[1][1],self.points[0][0]:self.points[1][0]]
+                self._input_image = self._input_image[min(self.points[0][1],self.points[1][1]):max(self.points[0][1],self.points[1][1]),min(self.points[0][0],self.points[1][0]):max(self.points[0][0],self.points[1][0])]
 
         except CvBridgeError as cv_bridge_exception:
             rospy.logerr(cv_bridge_exception)
 
     def extract_level(self):
-        
-        gray = cv2.cvtColor(self._input_image, cv2.COLOR_BGR2GRAY)
+        try:
+            gray = cv2.cvtColor(self._input_image, cv2.COLOR_BGR2GRAY)
+        except Exception as e:
+            print(e)
+            raise
         gray_blurred = cv2.GaussianBlur(gray,(7,7),cv2.BORDER_DEFAULT)
 
         ksize = 3
@@ -180,13 +183,16 @@ def main():
     try:
         pouring_detection = PourDetection()
         spin_rate = rospy.Rate(10)
-        rospy.sleep(0.5)
+        rospy.sleep(1)
         
         # UpdateGUI Window
         # check this self.points[0]!=self.points[1] here also maybe. call extract level only when self._image is of smaller size
         while (not rospy.is_shutdown()) and (pouring_detection.initialization==True):
             spin_rate.sleep()
-            img, gY, thrshld_img, blk_img = pouring_detection.extract_level()
+            try:
+                img, gY, thrshld_img, blk_img = pouring_detection.extract_level()
+            except Exception as e:
+                continue
             cv2.imshow("Original Image", img) 
             cv2.imshow("Gradient Y Image", gY)
             cv2.imshow("Threshold Image", thrshld_img)
