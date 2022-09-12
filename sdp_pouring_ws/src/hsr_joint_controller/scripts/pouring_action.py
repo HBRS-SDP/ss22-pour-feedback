@@ -78,8 +78,8 @@ class PouringAction(object):
         # current iteration weight
         new_weight = int(force_data.data)
         
-        # max allowed limit of change is 10 grams per cycle
-        max_rate_of_change = 10
+        # max allowed limit of change is 7 grams per cycle
+        max_rate_of_change = 7
         
         # if the rate of change of weight is above a limit, ie. bulk pouring, and the level is not reached,
         if ((self.old_weight-new_weight) > max_rate_of_change) and (self.finished==False):
@@ -150,3 +150,4 @@ if __name__ == '__main__':
     level = int(args.target)
 
     PouringAction(level)
+
